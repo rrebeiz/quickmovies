@@ -23,3 +23,17 @@ func (app *application) serverErrorResponse(w http.ResponseWriter, r *http.Reque
 	message := "the server encountered a problem and could not process your request"
 	app.errorResponse(w, http.StatusInternalServerError, r, message)
 }
+
+func (app *application) notFoundResponse(w http.ResponseWriter, r *http.Request) {
+	message := "the requested resource could not be found"
+	app.errorResponse(w, http.StatusNotFound, r, message)
+}
+
+func (app *application) failedValidationResponse(w http.ResponseWriter, r *http.Request, errors map[string]string) {
+	app.errorResponse(w, http.StatusUnprocessableEntity, r, errors)
+}
+
+func (app *application) badRequestResponse(w http.ResponseWriter, r *http.Request, err error) {
+	app.logError(r, err)
+	app.errorResponse(w, http.StatusBadRequest, r, err.Error())
+}

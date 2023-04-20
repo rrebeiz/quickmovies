@@ -22,9 +22,9 @@ type Movie struct {
 	Runtime   int32     `json:"runtime"`
 	Year      int32     `json:"year"`
 	Genres    []string  `json:"genres"`
-	Version   int32     `json:"version"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
+	Version   int32     `json:"-"`
+	CreatedAt time.Time `json:"-"`
+	UpdatedAt time.Time `json:"-"`
 }
 
 type MovieModel struct {
