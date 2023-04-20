@@ -31,7 +31,44 @@ Once the server is up you can use Postman, or curl to send requests. A frontend 
 
 
 ## POST
-
+`/v1/movies` creates a new movie <br>
 ## PATCH
 
 ## DELETE
+
+
+
+## Endpoints WIP
+### Show Movie
+Returns json data about a single movie
+* URL: `/v1/movies/:id`
+* Method: GET
+* URL Params:
+  * Required: id=[int]
+* Body Params: None
+* Success Response:
+  * Code: 200
+  * Content: {"movie":{"id":1,"title":"test","runtime":100,"year":2020,"genres":["action", "adventure"]}}
+* Error Response:
+* Code: 500
+* Content: {"error": "internal server error"
+
+
+### Create Movie
+Creates a new movie.
+* URL: `/v1/movies`
+* Method: POST
+* URL Params: None
+* Body Params:
+  * Required:
+    * `{"title":"test", "runtime":100, "year":2020, "genres":["action","adventure"]}`
+* Success Response:
+  * Code: 200
+  * Content: {"movie":{"id":1, "title":"test"...}}
+* Error Response:
+  * Code: 400
+  * Content: {"error": "body must not be empty"}
+  * Code: 422
+  * Content: {"error": {"title":"should not be empty","runtime":"should not be empty"...}}
+  * Code: 500
+  * Content: {"error": "internal server error"}

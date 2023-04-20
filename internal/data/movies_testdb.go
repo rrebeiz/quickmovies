@@ -27,3 +27,11 @@ func (m MockMovieModel) GetMovie(ctx context.Context, id int64) (*Movie, error) 
 		return nil, errors.New("something went wrong")
 	}
 }
+
+func (m MockMovieModel) CreateMovie(ctx context.Context, movie *Movie) error {
+	if movie.Title == "test" {
+		movie.ID = 2
+		return nil
+	}
+	return errors.New("something went wrong")
+}
