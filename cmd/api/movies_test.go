@@ -70,3 +70,38 @@ func TestCreateMovieHandler(t *testing.T) {
 		}
 	}
 }
+
+func TestUpdateMovieHandler(t *testing.T) {
+	tests := []struct {
+		name             string
+		id               string
+		body             string
+		expectedStatus   int
+		expectedResponse string
+	}{
+		{"valid test", "1", `{"title": "new test","runtime":150,"year":2021,"genres":["action"]}`, http.StatusOK, "{\"movie\":{\"id\":1,\"title\":\"new test\",\"runtime\":150,\"year\":2021,\"genres\":[\"action\"]}}\n"},
+		{"not found test", "0", `{"title": "new test","runtime":150,"year":2021,"genres":["action"]}`, http.StatusNotFound, "{\"error\":\"the requested resource could not be found\"}\n"},
+		{"validation failed test", "1", `{"runtime":-15,"year":0,"genres":["banana", "banana"]}`, http.StatusUnprocessableEntity, "{\"error\":{\"genre\":\"please use the following genres [action adventure comedy horror drama]\",\"genres\":\"must not contain duplicate genres\",\"runtime\":\"should be a positive number\",\"year\":\"should be a positive number\"}}\n"},
+		{"server error test", "2", `{"title": "new test","runtime":150,"year":2021,"genres":["action"]}`, http.StatusInternalServerError, "{\"error\":\"the server encountered a problem and could not process your request\"}\n"},
+	}
+	for _, e := range tests {
+		req, _ := http.NewRequest("PATCH", "/v1/movies/1", strings.NewReader(e.body))
+		chiCtx := chi.NewRouteContext()
+		chiCtx.URLParams.Add("id", e.id)
+		req = req.WithContext(context.WithValue(req.Context(), chi.RouteCtxKey, chiCtx))
+		req.Header.Set("Content-Type", "application/json")
+
+		rr := httptest.NewRecorder()
+		handler := http.HandlerFunc(testApp.updateMovieHandler)
+		handler.ServeHTTP(rr, req)
+
+		if e.expectedStatus != rr.Code {
+			t.Errorf("%s: expected %d but got %d", e.name, e.expectedStatus, rr.Code)
+		}
+
+		if e.expectedResponse != rr.Body.String() {
+			t.Errorf("%s: expected %s but got %s", e.name, e.expectedResponse, rr.Body.String())
+		}
+
+	}
+}

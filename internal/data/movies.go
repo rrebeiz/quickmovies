@@ -10,13 +10,10 @@ import (
 	"time"
 )
 
-var (
-	ErrNoRecordFound = errors.New("the requested resource could not be found")
-)
-
 type Movies interface {
 	GetMovie(ctx context.Context, id int64) (*Movie, error)
 	CreateMovie(ctx context.Context, movie *Movie) error
+	UpdateMovie(ctx context.Context, movie *Movie) error
 }
 
 type Movie struct {
@@ -39,12 +36,12 @@ func NewMovieModel(db *sql.DB) MovieModel {
 }
 
 func (m MovieModel) GetMovie(ctx context.Context, id int64) (*Movie, error) {
-	query := `select id, title, runtime, year, genres from movies where id = $1`
+	query := `select id, title, runtime, year, genres, version from movies where id = $1`
 	var movie Movie
 	if id <= 0 {
 		return nil, ErrNoRecordFound
 	}
-	err := m.DB.QueryRowContext(ctx, query, id).Scan(&movie.ID, &movie.Title, &movie.Runtime, &movie.Year, pq.Array(&movie.Genres))
+	err := m.DB.QueryRowContext(ctx, query, id).Scan(&movie.ID, &movie.Title, &movie.Runtime, &movie.Year, pq.Array(&movie.Genres), &movie.Version)
 
 	if err != nil {
 		switch {
@@ -60,15 +57,27 @@ func (m MovieModel) GetMovie(ctx context.Context, id int64) (*Movie, error) {
 func (m MovieModel) CreateMovie(ctx context.Context, movie *Movie) error {
 	query := `insert into movies (title, runtime, year, genres) values ($1, $2, $3, $4) returning id`
 	args := []interface{}{movie.Title, movie.Runtime, movie.Year, pq.Array(movie.Genres)}
-	err := m.DB.QueryRowContext(ctx, query, args...).Scan(&movie.ID)
-	if err != nil {
-		return err
-	}
-	return nil
+	return m.DB.QueryRowContext(ctx, query, args...).Scan(&movie.ID)
 
 }
 
-func ValidateMovie(v *validator.Validator, movie *Movie, permittedGenres ...string) {
+func (m MovieModel) UpdateMovie(ctx context.Context, movie *Movie) error {
+	query := `update movies set title = $1, runtime = $2, year = $3, genres = $4, version = version + 1 where id = $5 and version = $6 returning id, version`
+	args := []interface{}{movie.Title, movie.Runtime, movie.Year, pq.Array(movie.Genres), movie.ID, movie.Version}
+	err := m.DB.QueryRowContext(ctx, query, args...).Scan(&movie.ID, &movie.Version)
+	if err != nil {
+		switch {
+		case errors.Is(err, sql.ErrNoRows):
+			return ErrEditConflict
+		default:
+			return err
+		}
+	}
+	return nil
+}
+
+func ValidateMovie(v *validator.Validator, movie *Movie) {
+	permittedGenres := []string{"action", "adventure", "comedy", "horror", "drama"}
 	v.Check(movie.Title != "", "title", "should not be empty")
 	v.Check(len(movie.Title) <= 500, "title", "should not be greater than 500 bytes")
 

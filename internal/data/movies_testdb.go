@@ -35,3 +35,13 @@ func (m MockMovieModel) CreateMovie(ctx context.Context, movie *Movie) error {
 	}
 	return errors.New("something went wrong")
 }
+
+func (m MockMovieModel) UpdateMovie(ctx context.Context, movie *Movie) error {
+	if movie.ID == 1 {
+		return nil
+	} else if movie.ID == 0 {
+		return ErrNoRecordFound
+	} else {
+		return errors.New("failed to update movie")
+	}
+}

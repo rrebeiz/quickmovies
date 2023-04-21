@@ -37,3 +37,8 @@ func (app *application) badRequestResponse(w http.ResponseWriter, r *http.Reques
 	app.logError(r, err)
 	app.errorResponse(w, http.StatusBadRequest, r, err.Error())
 }
+
+func (app *application) editConflictResponse(w http.ResponseWriter, r *http.Request) {
+	message := "unable to update the record due to an edit conflict, please try again"
+	app.errorResponse(w, http.StatusConflict, r, message)
+}
