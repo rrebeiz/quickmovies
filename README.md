@@ -33,9 +33,9 @@ Once the server is up you can use Postman, or curl to send requests. A frontend 
 ## POST
 `/v1/movies` creates a new movie <br>
 ## PATCH
+`/v1/movies/:id` updates an existing movie <br>
 
 ## DELETE
-
 
 
 ## Endpoints WIP
@@ -48,7 +48,7 @@ Returns json data about a single movie
 * Body Params: None
 * Success Response:
   * Code: 200
-  * Content: {"movie":{"id":1,"title":"test","runtime":100,"year":2020,"genres":["action", "adventure"]}}
+  * Content: `{"movie":{"id":1,"title":"test","runtime":100,"year":2020,"genres":["action", "adventure"]}}`
 * Error Response:
 * Code: 500
 * Content: {"error": "internal server error"
@@ -67,8 +67,33 @@ Creates a new movie.
   * Content: {"movie":{"id":1, "title":"test"...}}
 * Error Response:
   * Code: 400
-  * Content: {"error": "body must not be empty"}
+  * Content: `{"error": "body must not be empty"}`
   * Code: 422
-  * Content: {"error": {"title":"should not be empty","runtime":"should not be empty"...}}
+  * Content: `{"error": {"title":"should not be empty","runtime":"should not be empty"...}}`
   * Code: 500
-  * Content: {"error": "internal server error"}
+  * Content: `{"error": "internal server error"}`
+
+
+### Update Movie
+Updates an existing movie.
+* URL: `/v1/movies/:id`
+* Method: PATCH
+* URL Params:
+  * Required: id=[int]
+* Body Params:
+  * Required:
+    * `{"title":"test", "runtime":100, "year":2020, "genres":["drama"]}`
+* Success Response:
+  * Code: 200
+  * Content:`{"movie":{"id":1,"title":"test","runtime":100,"year":2020,"genres":["drama"]}}`
+* Error Response:
+  * Code: 400
+  * Content: `{"error": "body must not be empty"}`
+  * Code: 404
+  * Content: `{"error": "the requested resource could not be found"}`
+  * Code: 409
+  * Content: `{"error": "unable to update the record due to an edit conflict, please try again"}`
+  * Code: 422
+  * Content: `{"error": {"title":"should not be empty","runtime":"should not be empty"...}}`
+  * Code: 500
+  * Content: `{"error": "internal server error"}`
