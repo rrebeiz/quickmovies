@@ -14,6 +14,7 @@ type Movies interface {
 	GetMovie(ctx context.Context, id int64) (*Movie, error)
 	CreateMovie(ctx context.Context, movie *Movie) error
 	UpdateMovie(ctx context.Context, movie *Movie) error
+	DeleteMovie(ctx context.Context, id int64) error
 }
 
 type Movie struct {
@@ -72,6 +73,33 @@ func (m MovieModel) UpdateMovie(ctx context.Context, movie *Movie) error {
 		default:
 			return err
 		}
+	}
+	return nil
+}
+
+func (m MovieModel) DeleteMovie(ctx context.Context, id int64) error {
+	if id < 1 {
+		return ErrNoRecordFound
+	}
+	query := `delete from movies where id = $1`
+	res, err := m.DB.ExecContext(ctx, query, id)
+	if err != nil {
+		switch {
+		case errors.Is(err, sql.ErrNoRows):
+			return ErrNoRecordFound
+		default:
+			return err
+		}
+	}
+
+	rowsAffected, err := res.RowsAffected()
+	if err != nil {
+		return err
+	}
+
+	if rowsAffected == 0 {
+		return ErrNoRecordFound
+
 	}
 	return nil
 }

@@ -105,3 +105,34 @@ func TestUpdateMovieHandler(t *testing.T) {
 
 	}
 }
+
+func TestMovieDeleteHandler(t *testing.T) {
+	tests := []struct {
+		name             string
+		id               string
+		expectedStatus   int
+		expectedResponse string
+	}{
+		{"valid test", "1", http.StatusOK, "{\"message\":\"movie with the id 1 has been deleted\"}\n"},
+		{"not found test", "0", http.StatusNotFound, "{\"error\":\"the requested resource could not be found\"}\n"},
+		{"non valid id should return not found test", "asd", http.StatusNotFound, "{\"error\":\"the requested resource could not be found\"}\n"},
+		{"should fail test", "2", http.StatusInternalServerError, "{\"error\":\"the server encountered a problem and could not process your request\"}\n"},
+	}
+
+	for _, e := range tests {
+		req, _ := http.NewRequest("DELETE", "/v1/movies/1", nil)
+		chiCtx := chi.NewRouteContext()
+		chiCtx.URLParams.Add("id", e.id)
+		req = req.WithContext(context.WithValue(req.Context(), chi.RouteCtxKey, chiCtx))
+		rr := httptest.NewRecorder()
+		handler := http.HandlerFunc(testApp.deleteMovieHandler)
+		handler.ServeHTTP(rr, req)
+
+		if e.expectedStatus != rr.Code {
+			t.Errorf("%s: expected %d but got %d", e.name, e.expectedStatus, rr.Code)
+		}
+		if e.expectedResponse != rr.Body.String() {
+			t.Errorf("%s: expected %s but got %s", e.name, e.expectedResponse, rr.Body.String())
+		}
+	}
+}

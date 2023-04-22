@@ -24,7 +24,7 @@ func (m MockMovieModel) GetMovie(ctx context.Context, id int64) (*Movie, error) 
 	} else if id == 0 {
 		return nil, ErrNoRecordFound
 	} else {
-		return nil, errors.New("something went wrong")
+		return nil, errors.New("failed to get movie")
 	}
 }
 
@@ -33,7 +33,7 @@ func (m MockMovieModel) CreateMovie(ctx context.Context, movie *Movie) error {
 		movie.ID = 2
 		return nil
 	}
-	return errors.New("something went wrong")
+	return errors.New("failed to create movie")
 }
 
 func (m MockMovieModel) UpdateMovie(ctx context.Context, movie *Movie) error {
@@ -44,4 +44,15 @@ func (m MockMovieModel) UpdateMovie(ctx context.Context, movie *Movie) error {
 	} else {
 		return errors.New("failed to update movie")
 	}
+}
+
+func (m MockMovieModel) DeleteMovie(ctx context.Context, id int64) error {
+	if id == 0 {
+		return ErrNoRecordFound
+	} else if id == 1 {
+		return nil
+	} else {
+		return errors.New("failed to delete movie")
+	}
+
 }

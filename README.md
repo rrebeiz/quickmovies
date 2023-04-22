@@ -36,7 +36,7 @@ Once the server is up you can use Postman, or curl to send requests. A frontend 
 `/v1/movies/:id` updates an existing movie <br>
 
 ## DELETE
-
+`/v1/movies/:id` deletes a movie by id <br>
 
 ## Endpoints WIP
 ### Show Movie
@@ -51,7 +51,7 @@ Returns json data about a single movie
   * Content: `{"movie":{"id":1,"title":"test","runtime":100,"year":2020,"genres":["action", "adventure"]}}`
 * Error Response:
 * Code: 500
-* Content: {"error": "internal server error"
+* Content: {"error": `"the server encountered a problem and could not process your request"`
 
 
 ### Create Movie
@@ -71,7 +71,7 @@ Creates a new movie.
   * Code: 422
   * Content: `{"error": {"title":"should not be empty","runtime":"should not be empty"...}}`
   * Code: 500
-  * Content: `{"error": "internal server error"}`
+  * Content: `{"error": "the server encountered a problem and could not process your request"}`
 
 
 ### Update Movie
@@ -96,4 +96,21 @@ Updates an existing movie.
   * Code: 422
   * Content: `{"error": {"title":"should not be empty","runtime":"should not be empty"...}}`
   * Code: 500
-  * Content: `{"error": "internal server error"}`
+  * Content: `{"error": "the server encountered a problem and could not process your request"}`
+
+
+### Delete Movie
+Deletes a movie by ID.
+* URL: `/v1/movies/:id`
+* Method: DELETE
+* URL Params:
+  * Required: id=[int]
+* Body Params: None
+* Success Response:
+  * Code: 200
+  * Content:`{"message":{"movie with the id {id} has been deleted"}}`
+* Error Response:
+  * Code: 404
+  * Content: `{"error": "the requested resource could not be found"}`
+  * Code: 500
+  * Content: `{"error": "the server encountered a problem and could not process your request"}`
