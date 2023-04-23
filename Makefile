@@ -26,3 +26,9 @@ stop:
 ## restart: restarts the application
 restart: stop start
 
+
+## test: runs the tests
+test:
+	@echo "starting tests..."
+	go test -v ./cmd/api/
+	@echo "done"

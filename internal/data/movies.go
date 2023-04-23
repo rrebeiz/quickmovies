@@ -15,6 +15,7 @@ type Movies interface {
 	CreateMovie(ctx context.Context, movie *Movie) error
 	UpdateMovie(ctx context.Context, movie *Movie) error
 	DeleteMovie(ctx context.Context, id int64) error
+	GetAllMovies(ctx context.Context) ([]*Movie, error)
 }
 
 type Movie struct {
@@ -53,6 +54,31 @@ func (m MovieModel) GetMovie(ctx context.Context, id int64) (*Movie, error) {
 		}
 	}
 	return &movie, nil
+}
+
+func (m MovieModel) GetAllMovies(ctx context.Context) ([]*Movie, error) {
+	query := `select id, title, runtime, year, genres from movies`
+
+	rows, err := m.DB.QueryContext(ctx, query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var movies []*Movie
+	for rows.Next() {
+		var movie Movie
+		err = rows.Scan(&movie.ID, &movie.Title, &movie.Runtime, &movie.Year, pq.Array(&movie.Genres))
+		if err != nil {
+			return nil, err
+		}
+		movies = append(movies, &movie)
+	}
+	err = rows.Err()
+	if err != nil {
+		return nil, err
+	}
+	return movies, nil
 }
 
 func (m MovieModel) CreateMovie(ctx context.Context, movie *Movie) error {

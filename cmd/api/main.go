@@ -46,6 +46,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("failed to start the db connection %s", err)
 	}
+	defer db.Close()
 
 	app := application{
 		config:   cfg,
@@ -56,7 +57,7 @@ func main() {
 
 	err = app.serve()
 	if err != nil {
-		log.Fatalf("failed to start the server %s", err)
+		app.errorLog.Fatal("failed to start the server")
 	}
 
 }
@@ -76,7 +77,9 @@ func openDB(cfg config) (*sql.DB, error) {
 	}
 	db.SetConnMaxIdleTime(duration)
 
-	err = db.PingContext(context.Background())
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+	err = db.PingContext(ctx)
 	if err != nil {
 		return nil, err
 	}

@@ -38,6 +38,19 @@ func (app *application) getMovieHandler(w http.ResponseWriter, r *http.Request) 
 	}
 }
 
+func (app *application) getAllMoviesHandler(w http.ResponseWriter, r *http.Request) {
+	movies, err := app.models.Movies.GetAllMovies(r.Context())
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+	err = app.writeJSON(w, http.StatusOK, envelope{"movies": movies}, nil)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+}
+
 func (app *application) createMovieHandler(w http.ResponseWriter, r *http.Request) {
 	var input struct {
 		Title   string   `json:"title"`

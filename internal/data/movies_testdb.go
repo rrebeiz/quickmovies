@@ -56,3 +56,25 @@ func (m MockMovieModel) DeleteMovie(ctx context.Context, id int64) error {
 	}
 
 }
+
+func (m MockMovieModel) GetAllMovies(ctx context.Context) ([]*Movie, error) {
+	movies := []*Movie{
+		{
+			ID:      1,
+			Title:   "test movie 1",
+			Runtime: 100,
+			Year:    2020,
+			Genres:  []string{"action"},
+			Version: 1,
+		},
+		{
+			ID:      2,
+			Title:   "test movie 2",
+			Runtime: 100,
+			Year:    2020,
+			Genres:  []string{"adventure"},
+			Version: 1,
+		},
+	}
+	return movies, nil
+}

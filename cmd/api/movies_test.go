@@ -106,7 +106,7 @@ func TestUpdateMovieHandler(t *testing.T) {
 	}
 }
 
-func TestMovieDeleteHandler(t *testing.T) {
+func TestDeleteMovieHandler(t *testing.T) {
 	tests := []struct {
 		name             string
 		id               string
@@ -131,6 +131,31 @@ func TestMovieDeleteHandler(t *testing.T) {
 		if e.expectedStatus != rr.Code {
 			t.Errorf("%s: expected %d but got %d", e.name, e.expectedStatus, rr.Code)
 		}
+		if e.expectedResponse != rr.Body.String() {
+			t.Errorf("%s: expected %s but got %s", e.name, e.expectedResponse, rr.Body.String())
+		}
+	}
+}
+
+func TestGetAllMoviesHandler(t *testing.T) {
+	tests := []struct {
+		name             string
+		expectedStatus   int
+		expectedResponse string
+	}{
+		{"valid test", http.StatusOK, "{\"movies\":[{\"id\":1,\"title\":\"test movie 1\",\"runtime\":100,\"year\":2020,\"genres\":[\"action\"]},{\"id\":2,\"title\":\"test movie 2\",\"runtime\":100,\"year\":2020,\"genres\":[\"adventure\"]}]}\n"},
+	}
+
+	for _, e := range tests {
+		req, _ := http.NewRequest("GET", "/v1/movies", nil)
+		rr := httptest.NewRecorder()
+		handler := http.HandlerFunc(testApp.getAllMoviesHandler)
+		handler.ServeHTTP(rr, req)
+
+		if e.expectedStatus != rr.Code {
+			t.Errorf("%s: expected %d but got %d", e.name, e.expectedStatus, rr.Code)
+		}
+
 		if e.expectedResponse != rr.Body.String() {
 			t.Errorf("%s: expected %s but got %s", e.name, e.expectedResponse, rr.Body.String())
 		}
